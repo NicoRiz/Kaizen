@@ -26,8 +26,9 @@ const weightLabels = {
 
 export function ArchiveSection({ title, items, onClose, onDeleteItem, onRestoreItem }: ArchiveSectionProps) {
   return (
-    <div className="fixed inset-0 z-50 flex items-end bg-black/65 px-4 py-5 backdrop-blur-sm sm:items-center sm:justify-center">
-      <section className="max-h-[88vh] w-full overflow-hidden rounded-3xl border border-white/10 bg-ink-900 shadow-soft sm:max-w-4xl">
+    <div className="fixed inset-0 z-50 bg-black/65 backdrop-blur-sm">
+      <div className="flex min-h-full items-end justify-center p-4 sm:items-center">
+        <section className="max-h-[88vh] w-full overflow-hidden rounded-3xl border border-white/10 bg-ink-900 shadow-soft sm:max-w-4xl">
         <div className="flex items-start justify-between gap-4 border-b border-white/10 p-5">
           <div>
             <p className="text-sm font-medium uppercase tracking-[0.24em] text-moss-300">Archivio</p>
@@ -113,7 +114,8 @@ export function ArchiveSection({ title, items, onClose, onDeleteItem, onRestoreI
             )}
           </div>
         </div>
-      </section>
+        </section>
+      </div>
     </div>
   );
 }

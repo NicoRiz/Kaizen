@@ -343,17 +343,22 @@ export function useKaizenStore() {
 
       return {
         ...current,
-        goals: current.goals.map((goal) => (
-          goal.id === itemId
-            ? {
+        goals: current.goals.map((goal) => {
+          if (goal.id !== itemId) {
+            return goal;
+          }
+
+          const restoredValue = Math.max(0, goal.targetValue > 1 ? goal.targetValue - 1 : 0);
+
+          return {
               ...goal,
               status: "active" as const,
               completedAt: null,
               archivedAt: null,
+              currentValue: restoredValue,
               deadline: new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString(),
-            }
-            : goal
-        )),
+          };
+        }),
       };
     });
   }, [updateState]);

@@ -3,16 +3,19 @@
 type ArchiveSummaryCardProps = {
   title: string;
   description: string;
-  totalCount: number;
-  weeklyCount: number;
+  typeCounts: {
+    taskTotal: number;
+    goalTotal: number;
+    taskWeekly: number;
+    goalWeekly: number;
+  };
   onOpen: () => void;
 };
 
 export function ArchiveSummaryCard({
   title,
   description,
-  totalCount,
-  weeklyCount,
+  typeCounts,
   onOpen,
 }: ArchiveSummaryCardProps) {
   return (
@@ -25,14 +28,32 @@ export function ArchiveSummaryCard({
       <h2 className="text-xl font-semibold text-zinc-50">{title}</h2>
       <p className="mt-2 text-sm leading-6 text-zinc-400">{description}</p>
 
-      <div className="mt-6 grid grid-cols-2 gap-3">
+      <div className="mt-6 grid gap-3 sm:grid-cols-2">
         <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-          <p className="text-xs uppercase tracking-[0.18em] text-zinc-500">Totale</p>
-          <p className="mt-2 text-2xl font-semibold text-zinc-50">{totalCount}</p>
+          <p className="text-xs uppercase tracking-[0.18em] text-zinc-500">Totali</p>
+          <div className="mt-3 space-y-2 text-sm text-zinc-300">
+            <p className="flex items-center justify-between gap-4">
+              <span>Task totali</span>
+              <span className="text-lg font-semibold text-zinc-50">{typeCounts.taskTotal}</span>
+            </p>
+            <p className="flex items-center justify-between gap-4">
+              <span>Obiettivi totali</span>
+              <span className="text-lg font-semibold text-zinc-50">{typeCounts.goalTotal}</span>
+            </p>
+          </div>
         </div>
         <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
           <p className="text-xs uppercase tracking-[0.18em] text-zinc-500">Questa settimana</p>
-          <p className="mt-2 text-2xl font-semibold text-zinc-50">{weeklyCount}</p>
+          <div className="mt-3 space-y-2 text-sm text-zinc-300">
+            <p className="flex items-center justify-between gap-4">
+              <span>Task</span>
+              <span className="text-lg font-semibold text-zinc-50">{typeCounts.taskWeekly}</span>
+            </p>
+            <p className="flex items-center justify-between gap-4">
+              <span>Obiettivi</span>
+              <span className="text-lg font-semibold text-zinc-50">{typeCounts.goalWeekly}</span>
+            </p>
+          </div>
         </div>
       </div>
     </button>

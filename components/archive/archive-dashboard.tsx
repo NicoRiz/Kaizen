@@ -20,12 +20,22 @@ export function ArchiveDashboard() {
   } = useKaizenStore();
   const [activeSection, setActiveSection] = useState<ActiveSection>(null);
 
-  const completedThisWeek = useMemo(
-    () => completedItems.filter((item) => isInCurrentWeek(getArchiveDate(item))).length,
+  const completedCounts = useMemo(
+    () => ({
+      taskTotal: completedItems.filter((item) => item.type === "task").length,
+      goalTotal: completedItems.filter((item) => item.type === "goal").length,
+      taskWeekly: completedItems.filter((item) => item.type === "task" && isInCurrentWeek(getArchiveDate(item))).length,
+      goalWeekly: completedItems.filter((item) => item.type === "goal" && isInCurrentWeek(getArchiveDate(item))).length,
+    }),
     [completedItems],
   );
-  const expiredThisWeek = useMemo(
-    () => expiredItems.filter((item) => isInCurrentWeek(getArchiveDate(item))).length,
+  const expiredCounts = useMemo(
+    () => ({
+      taskTotal: expiredItems.filter((item) => item.type === "task").length,
+      goalTotal: expiredItems.filter((item) => item.type === "goal").length,
+      taskWeekly: expiredItems.filter((item) => item.type === "task" && isInCurrentWeek(getArchiveDate(item))).length,
+      goalWeekly: expiredItems.filter((item) => item.type === "goal" && isInCurrentWeek(getArchiveDate(item))).length,
+    }),
     [expiredItems],
   );
 
@@ -66,15 +76,13 @@ export function ArchiveDashboard() {
             <ArchiveSummaryCard
               title="Progressi"
               description="Task e obiettivi SMART completati entro la scadenza."
-              totalCount={completedItems.length}
-              weeklyCount={completedThisWeek}
+              typeCounts={completedCounts}
               onOpen={() => setActiveSection("completed")}
             />
             <ArchiveSummaryCard
               title="Accumulate"
               description="Task e obiettivi SMART arrivati a scadenza senza completamento."
-              totalCount={expiredItems.length}
-              weeklyCount={expiredThisWeek}
+              typeCounts={expiredCounts}
               onOpen={() => setActiveSection("expired")}
             />
           </div>
