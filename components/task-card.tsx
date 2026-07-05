@@ -1,15 +1,15 @@
 import { clsx } from "clsx";
 
 const priorityStyles: Record<string, string> = {
-  High: "bg-rose-400/15 text-rose-200 ring-rose-300/20",
-  Medium: "bg-amber-300/15 text-amber-100 ring-amber-200/20",
-  Low: "bg-moss-400/15 text-moss-300 ring-moss-300/20",
+  Alta: "bg-rose-400/15 text-rose-200 ring-rose-300/20",
+  Media: "bg-amber-300/15 text-amber-100 ring-amber-200/20",
+  Bassa: "bg-moss-400/15 text-moss-300 ring-moss-300/20",
 };
 
 type TaskCardProps = {
   title: string;
   description: string;
-  priority: "High" | "Medium" | "Low";
+  priority: "Alta" | "Media" | "Bassa";
 };
 
 export function TaskCard({ title, description, priority }: TaskCardProps) {

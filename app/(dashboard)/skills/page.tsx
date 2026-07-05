@@ -4,19 +4,19 @@ import { PageHeader } from "@/components/page-header";
 const cards = [
   {
     title: "Videos",
-    description: "Long-form lessons and useful walkthroughs to revisit.",
+    description: "Lezioni lunghe e walkthrough utili da rivedere.",
   },
   {
     title: "Reels",
-    description: "Short clips with practical examples, drills, or prompts.",
+    description: "Clip brevi con esempi pratici, esercizi o prompt.",
   },
   {
-    title: "Tutorials",
-    description: "Step-by-step resources for building repeatable skills.",
+    title: "Tutorial",
+    description: "Risorse passo passo per costruire skill ripetibili.",
   },
   {
-    title: "Tips",
-    description: "Small tactics, reminders, and refinements worth keeping close.",
+    title: "Consigli",
+    description: "Piccole tattiche, promemoria e rifiniture da tenere a portata.",
   },
 ];
 
@@ -25,8 +25,8 @@ export default function SkillsPage() {
     <div className="space-y-6">
       <PageHeader
         label="Skills"
-        title="Learning resources"
-        description="A quiet library for videos, reels, tutorials, and practical tips."
+        title="Risorse di apprendimento"
+        description="Una libreria ordinata per video, reel, tutorial e consigli pratici."
       />
       <ConceptGrid items={cards} />
     </div>

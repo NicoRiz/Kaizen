@@ -5,5 +5,5 @@ export const navItems = [
   { href: "/sharkmo", label: "Sharkmo", icon: Lightbulb },
   { href: "/skills", label: "Skills", icon: Target },
   { href: "/socrate", label: "Socrate", icon: BookOpenText },
-  { href: "/archive", label: "Archive", icon: Archive },
+  { href: "/archive", label: "Archivio", icon: Archive },
 ];

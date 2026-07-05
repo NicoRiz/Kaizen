@@ -3,20 +3,20 @@ import { PageHeader } from "@/components/page-header";
 
 const cards = [
   {
-    title: "Concepts",
-    description: "Raw brand ideas, angles, and themes waiting to be shaped.",
+    title: "Concetti",
+    description: "Idee di brand, angoli e temi ancora da modellare.",
   },
   {
     title: "Hooks",
-    description: "Opening lines, attention patterns, and repeatable content frames.",
+    description: "Aperture, pattern di attenzione e strutture contenuto riutilizzabili.",
   },
   {
-    title: "Post ideas",
-    description: "Draft seeds for posts, scripts, carousels, and long-form pieces.",
+    title: "Idee post",
+    description: "Spunti per post, script, caroselli e contenuti più lunghi.",
   },
   {
-    title: "Philosophy references",
-    description: "Principles, quotes, and references that can inform the voice.",
+    title: "Riferimenti filosofici",
+    description: "Principi, citazioni e riferimenti che possono guidare la voce.",
   },
 ];
 
@@ -25,8 +25,8 @@ export default function SharkmoPage() {
     <div className="space-y-6">
       <PageHeader
         label="Sharkmo"
-        title="Brand and content ideas"
-        description="A prepared workspace for concepts, hooks, post ideas, and philosophy references."
+        title="Idee brand e contenuto"
+        description="Uno spazio preparato per concetti, hook, idee post e riferimenti filosofici."
       />
       <ConceptGrid items={cards} />
     </div>

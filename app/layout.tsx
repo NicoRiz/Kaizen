@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Kaizen",
-  description: "A personal productivity and learning operating system.",
+  description: "Un sistema personale per produttività e apprendimento.",
 };
 
 export default function RootLayout({
@@ -12,7 +12,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="it">
       <body className="font-sans antialiased">{children}</body>
     </html>
   );
