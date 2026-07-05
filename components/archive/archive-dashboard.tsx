@@ -1,11 +1,52 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import { PageHeader } from "@/components/page-header";
 import { ArchiveSection } from "@/components/archive/archive-section";
+import { ArchiveSummaryCard } from "@/components/archive/archive-summary-card";
+import { getArchiveDate, isInCurrentWeek } from "@/lib/kaizen/date-utils";
 import { useKaizenStore } from "@/lib/kaizen/use-kaizen-store";
+import type { ArchivedItem } from "@/lib/kaizen/types";
+
+type ActiveSection = "completed" | "expired" | null;
 
 export function ArchiveDashboard() {
-  const { ready, completedItems, expiredItems } = useKaizenStore();
+  const {
+    ready,
+    completedItems,
+    expiredItems,
+    deleteArchivedItem,
+    restoreArchivedItem,
+  } = useKaizenStore();
+  const [activeSection, setActiveSection] = useState<ActiveSection>(null);
+
+  const completedThisWeek = useMemo(
+    () => completedItems.filter((item) => isInCurrentWeek(getArchiveDate(item))).length,
+    [completedItems],
+  );
+  const expiredThisWeek = useMemo(
+    () => expiredItems.filter((item) => isInCurrentWeek(getArchiveDate(item))).length,
+    [expiredItems],
+  );
+
+  const modalItems = activeSection === "completed" ? completedItems : expiredItems;
+  const modalTitle = activeSection === "completed" ? "Progressi" : "Accumulate";
+
+  function handleDeleteItem(item: ArchivedItem) {
+    if (!window.confirm("Vuoi eliminare definitivamente questo elemento?")) {
+      return;
+    }
+
+    deleteArchivedItem(item.id, item.type);
+  }
+
+  function handleRestoreItem(item: ArchivedItem) {
+    if (!window.confirm("Vuoi riportare questo elemento nella Home come non fatto?")) {
+      return;
+    }
+
+    restoreArchivedItem(item.id, item.type);
+  }
 
   return (
     <div className="space-y-6">
@@ -20,18 +61,34 @@ export function ArchiveDashboard() {
           Caricamento archivio...
         </p>
       ) : (
-        <div className="grid gap-4 xl:grid-cols-2">
-          <ArchiveSection
-            title="Progressi"
-            description="Task e obiettivi SMART completati entro la scadenza."
-            items={completedItems}
-          />
-          <ArchiveSection
-            title="Accumulate"
-            description="Task e obiettivi SMART arrivati a scadenza senza completamento."
-            items={expiredItems}
-          />
-        </div>
+        <>
+          <div className="grid gap-4 xl:grid-cols-2">
+            <ArchiveSummaryCard
+              title="Progressi"
+              description="Task e obiettivi SMART completati entro la scadenza."
+              totalCount={completedItems.length}
+              weeklyCount={completedThisWeek}
+              onOpen={() => setActiveSection("completed")}
+            />
+            <ArchiveSummaryCard
+              title="Accumulate"
+              description="Task e obiettivi SMART arrivati a scadenza senza completamento."
+              totalCount={expiredItems.length}
+              weeklyCount={expiredThisWeek}
+              onOpen={() => setActiveSection("expired")}
+            />
+          </div>
+
+          {activeSection ? (
+            <ArchiveSection
+              title={modalTitle}
+              items={modalItems}
+              onClose={() => setActiveSection(null)}
+              onDeleteItem={handleDeleteItem}
+              onRestoreItem={handleRestoreItem}
+            />
+          ) : null}
+        </>
       )}
     </div>
   );

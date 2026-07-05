@@ -7,6 +7,7 @@ import type { SmartGoal } from "@/lib/kaizen/types";
 
 type SmartGoalFormValues = {
   title: string;
+  description: string;
   targetValue: number;
   currentValue: number;
   deadline: string;
@@ -24,6 +25,7 @@ function getDefaultDeadline() {
 
 export function SmartGoalFormModal({ goal, onClose, onSave }: SmartGoalFormModalProps) {
   const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
   const [targetValue, setTargetValue] = useState(10);
   const [currentValue, setCurrentValue] = useState(0);
   const [deadline, setDeadline] = useState(getDefaultDeadline);
@@ -34,6 +36,7 @@ export function SmartGoalFormModal({ goal, onClose, onSave }: SmartGoalFormModal
 
   useEffect(() => {
     setTitle(goal?.title ?? "");
+    setDescription(goal?.description ?? "");
     setTargetValue(goal?.targetValue ?? 10);
     setCurrentValue(goal?.currentValue ?? 0);
     setDeadline(goal ? toDateTimeLocalValue(goal.deadline) : getDefaultDeadline());
@@ -65,6 +68,7 @@ export function SmartGoalFormModal({ goal, onClose, onSave }: SmartGoalFormModal
 
     onSave({
       title,
+      description,
       targetValue,
       currentValue,
       deadline: fromDateTimeLocalValue(deadline),
@@ -100,6 +104,17 @@ export function SmartGoalFormModal({ goal, onClose, onSave }: SmartGoalFormModal
               onChange={(event) => setTitle(event.target.value)}
               className="mt-2 w-full rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-zinc-50 outline-none transition placeholder:text-zinc-500 focus:border-moss-400/60"
               placeholder="Es. Completare 10 lezioni"
+            />
+          </label>
+
+          <label className="block">
+            <span className="text-sm font-medium text-zinc-200">Descrizione</span>
+            <textarea
+              value={description}
+              onChange={(event) => setDescription(event.target.value)}
+              rows={4}
+              className="mt-2 w-full resize-none rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-zinc-50 outline-none transition placeholder:text-zinc-500 focus:border-moss-400/60"
+              placeholder="Perche conta, criteri SMART o note operative"
             />
           </label>
 

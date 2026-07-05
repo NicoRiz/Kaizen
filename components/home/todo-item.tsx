@@ -1,6 +1,7 @@
 "use client";
 
 import { Check, Pencil, Trash2 } from "lucide-react";
+import { DescriptionPreview } from "@/components/description-preview";
 import { formatTimeRemaining } from "@/lib/kaizen/date-utils";
 import type { KaizenTask } from "@/lib/kaizen/types";
 
@@ -40,6 +41,7 @@ export function TodoItem({ task, now, onComplete, onEdit, onDelete }: TodoItemPr
               Non completata
             </span>
           </div>
+          <DescriptionPreview description={task.description} />
           <p className="mt-2 text-xs text-zinc-500">{formatTimeRemaining(task.deadline, now)}</p>
         </div>
 

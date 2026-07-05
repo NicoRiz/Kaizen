@@ -9,6 +9,7 @@ import type { SmartGoal } from "@/lib/kaizen/types";
 
 type SmartGoalValues = {
   title: string;
+  description: string;
   targetValue: number;
   currentValue: number;
   deadline: string;

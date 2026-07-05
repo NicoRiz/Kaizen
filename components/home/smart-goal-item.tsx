@@ -1,6 +1,7 @@
 "use client";
 
 import { Pencil, Trash2 } from "lucide-react";
+import { DescriptionPreview } from "@/components/description-preview";
 import { formatDateTime } from "@/lib/kaizen/date-utils";
 import type { SmartGoal } from "@/lib/kaizen/types";
 
@@ -19,6 +20,7 @@ export function SmartGoalItem({ goal, onEdit, onDelete, onUpdateProgress }: Smar
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0 flex-1">
           <h3 className="break-words font-medium text-zinc-50">{goal.title}</h3>
+          <DescriptionPreview description={goal.description} />
           <p className="mt-2 text-xs text-zinc-500">Scadenza: {formatDateTime(goal.deadline)}</p>
         </div>
 

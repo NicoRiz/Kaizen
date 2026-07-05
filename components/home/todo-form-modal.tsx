@@ -6,6 +6,7 @@ import type { KaizenTask, TaskWeight } from "@/lib/kaizen/types";
 
 type TodoFormValues = {
   title: string;
+  description: string;
   weight: TaskWeight;
   durationHours: number;
 };
@@ -28,6 +29,7 @@ function getRemainingHours(task?: KaizenTask | null) {
 
 export function TodoFormModal({ task, onClose, onSave }: TodoFormModalProps) {
   const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
   const [weight, setWeight] = useState<TaskWeight>("primary");
   const [durationHours, setDurationHours] = useState(1);
   const [error, setError] = useState("");
@@ -37,6 +39,7 @@ export function TodoFormModal({ task, onClose, onSave }: TodoFormModalProps) {
 
   useEffect(() => {
     setTitle(task?.title ?? "");
+    setDescription(task?.description ?? "");
     setWeight(task?.weight ?? "primary");
     setDurationHours(getRemainingHours(task));
     setError("");
@@ -55,7 +58,7 @@ export function TodoFormModal({ task, onClose, onSave }: TodoFormModalProps) {
       return;
     }
 
-    onSave({ title, weight, durationHours });
+    onSave({ title, description, weight, durationHours });
   }
 
   return (
@@ -87,6 +90,17 @@ export function TodoFormModal({ task, onClose, onSave }: TodoFormModalProps) {
               onChange={(event) => setTitle(event.target.value)}
               className="mt-2 w-full rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-zinc-50 outline-none transition placeholder:text-zinc-500 focus:border-moss-400/60"
               placeholder="Es. Scrivere il piano della giornata"
+            />
+          </label>
+
+          <label className="block">
+            <span className="text-sm font-medium text-zinc-200">Descrizione</span>
+            <textarea
+              value={description}
+              onChange={(event) => setDescription(event.target.value)}
+              rows={4}
+              className="mt-2 w-full resize-none rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-zinc-50 outline-none transition placeholder:text-zinc-500 focus:border-moss-400/60"
+              placeholder="Dettagli, contesto o note utili"
             />
           </label>
 

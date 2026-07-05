@@ -12,12 +12,14 @@ const initialState: KaizenState = {
 
 type TaskInput = {
   title: string;
+  description: string;
   weight: TaskWeight;
   durationHours: number;
 };
 
 type GoalInput = {
   title: string;
+  description: string;
   targetValue: number;
   currentValue: number;
   deadline: string;
@@ -31,34 +33,85 @@ function createId() {
   return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
+function getFallbackArchiveDate(item: { completedAt?: string | null; deadline: string }) {
+  return item.completedAt ?? item.deadline;
+}
+
+function normalizeTask(task: KaizenTask) {
+  const archivedAt = task.status === "active"
+    ? null
+    : task.archivedAt ?? getFallbackArchiveDate(task);
+
+  return {
+    ...task,
+    description: task.description ?? "",
+    archivedAt,
+  };
+}
+
+function normalizeGoal(goal: SmartGoal) {
+  const archivedAt = goal.status === "active"
+    ? null
+    : goal.archivedAt ?? getFallbackArchiveDate(goal);
+
+  return {
+    ...goal,
+    description: goal.description ?? "",
+    archivedAt,
+  };
+}
+
 function normalizeExpired(state: KaizenState, now = Date.now()) {
   let changed = false;
 
+  const nowIso = new Date(now).toISOString();
+
   const tasks = state.tasks.map((task) => {
-    if (task.status === "active" && new Date(task.deadline).getTime() <= now) {
+    const normalizedTask = normalizeTask(task);
+
+    if (normalizedTask.status === "active" && new Date(normalizedTask.deadline).getTime() <= now) {
       changed = true;
-      return { ...task, status: "expired" as const, completedAt: null };
+      return { ...normalizedTask, status: "expired" as const, completedAt: null, archivedAt: nowIso };
     }
 
-    return task;
+    if (normalizedTask !== task) {
+      changed = true;
+    }
+
+    return normalizedTask;
   });
 
   const goals = state.goals.map((goal) => {
-    if (goal.status !== "active") {
-      return goal;
+    const normalizedGoal = normalizeGoal(goal);
+
+    if (normalizedGoal.status !== "active") {
+      if (normalizedGoal !== goal) {
+        changed = true;
+      }
+
+      return normalizedGoal;
     }
 
-    if (goal.currentValue >= goal.targetValue) {
+    if (normalizedGoal.currentValue >= normalizedGoal.targetValue) {
       changed = true;
-      return { ...goal, status: "completed" as const, completedAt: goal.completedAt ?? new Date(now).toISOString() };
+      return {
+        ...normalizedGoal,
+        status: "completed" as const,
+        completedAt: normalizedGoal.completedAt ?? nowIso,
+        archivedAt: nowIso,
+      };
     }
 
-    if (new Date(goal.deadline).getTime() <= now) {
+    if (new Date(normalizedGoal.deadline).getTime() <= now) {
       changed = true;
-      return { ...goal, status: "expired" as const, completedAt: null };
+      return { ...normalizedGoal, status: "expired" as const, completedAt: null, archivedAt: nowIso };
     }
 
-    return goal;
+    if (normalizedGoal !== goal) {
+      changed = true;
+    }
+
+    return normalizedGoal;
   });
 
   return changed ? { tasks, goals } : state;
@@ -126,10 +179,12 @@ export function useKaizenStore() {
       id: createId(),
       type: "task",
       title: input.title.trim(),
+      description: input.description.trim(),
       weight: input.weight,
       createdAt: now.toISOString(),
       deadline: new Date(now.getTime() + input.durationHours * 60 * 60 * 1000).toISOString(),
       completedAt: null,
+      archivedAt: null,
       status: "active",
     };
 
@@ -143,7 +198,7 @@ export function useKaizenStore() {
       ...current,
       tasks: current.tasks.map((task) => (
         task.id === taskId
-          ? { ...task, title: input.title.trim(), weight: input.weight, deadline }
+          ? { ...task, title: input.title.trim(), description: input.description.trim(), weight: input.weight, deadline }
           : task
       )),
     }));
@@ -172,6 +227,7 @@ export function useKaizenStore() {
           ...task,
           status: isOnTime ? "completed" : "expired",
           completedAt: isOnTime ? now.toISOString() : null,
+          archivedAt: now.toISOString(),
         };
       }),
     }));
@@ -184,11 +240,13 @@ export function useKaizenStore() {
       id: createId(),
       type: "goal",
       title: input.title.trim(),
+      description: input.description.trim(),
       currentValue: input.currentValue,
       targetValue: input.targetValue,
       createdAt: now.toISOString(),
       deadline: input.deadline,
       completedAt: completed ? now.toISOString() : null,
+      archivedAt: completed ? now.toISOString() : null,
       status: completed ? "completed" : "active",
     };
 
@@ -210,10 +268,12 @@ export function useKaizenStore() {
         return {
           ...goal,
           title: input.title.trim(),
+          description: input.description.trim(),
           currentValue: input.currentValue,
           targetValue: input.targetValue,
           deadline: input.deadline,
           completedAt: completed ? now.toISOString() : null,
+          archivedAt: completed ? now.toISOString() : null,
           status: completed ? "completed" : "active",
         };
       }),
@@ -237,10 +297,65 @@ export function useKaizenStore() {
           ...goal,
           currentValue: nextValue,
           completedAt: completed ? now.toISOString() : goal.completedAt,
+          archivedAt: completed ? now.toISOString() : goal.archivedAt,
           status: completed ? "completed" : "active",
         };
       }),
     }));
+  }, [updateState]);
+
+  const deleteArchivedItem = useCallback((itemId: string, type: "task" | "goal") => {
+    updateState((current) => {
+      if (type === "task") {
+        return {
+          ...current,
+          tasks: current.tasks.filter((task) => task.id !== itemId),
+        };
+      }
+
+      return {
+        ...current,
+        goals: current.goals.filter((goal) => goal.id !== itemId),
+      };
+    });
+  }, [updateState]);
+
+  const restoreArchivedItem = useCallback((itemId: string, type: "task" | "goal") => {
+    const now = new Date();
+
+    updateState((current) => {
+      if (type === "task") {
+        return {
+          ...current,
+          tasks: current.tasks.map((task) => (
+            task.id === itemId
+              ? {
+                ...task,
+                status: "active" as const,
+                completedAt: null,
+                archivedAt: null,
+                deadline: new Date(now.getTime() + 60 * 60 * 1000).toISOString(),
+              }
+              : task
+          )),
+        };
+      }
+
+      return {
+        ...current,
+        goals: current.goals.map((goal) => (
+          goal.id === itemId
+            ? {
+              ...goal,
+              status: "active" as const,
+              completedAt: null,
+              archivedAt: null,
+              deadline: new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString(),
+            }
+            : goal
+        )),
+      };
+    });
   }, [updateState]);
 
   const deleteGoal = useCallback((goalId: string) => {
@@ -275,5 +390,7 @@ export function useKaizenStore() {
     editGoal,
     deleteGoal,
     updateGoalProgress,
+    deleteArchivedItem,
+    restoreArchivedItem,
   };
 }

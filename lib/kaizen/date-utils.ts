@@ -45,3 +45,22 @@ export function toDateTimeLocalValue(value: string) {
 export function fromDateTimeLocalValue(value: string) {
   return new Date(value).toISOString();
 }
+
+export function getArchiveDate(value: { archivedAt: string | null; completedAt: string | null; deadline: string }) {
+  return value.archivedAt ?? value.completedAt ?? value.deadline;
+}
+
+export function isInCurrentWeek(value: string, now = new Date()) {
+  const date = new Date(value);
+  const startOfWeek = new Date(now);
+  const day = startOfWeek.getDay();
+  const distanceFromMonday = day === 0 ? 6 : day - 1;
+
+  startOfWeek.setHours(0, 0, 0, 0);
+  startOfWeek.setDate(startOfWeek.getDate() - distanceFromMonday);
+
+  const endOfWeek = new Date(startOfWeek);
+  endOfWeek.setDate(startOfWeek.getDate() + 7);
+
+  return date >= startOfWeek && date < endOfWeek;
+}

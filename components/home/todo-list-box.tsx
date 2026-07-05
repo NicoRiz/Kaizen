@@ -10,8 +10,11 @@ import type { KaizenTask, TaskWeight } from "@/lib/kaizen/types";
 type TodoListBoxProps = {
   ready: boolean;
   tasks: KaizenTask[];
-  onAddTask: (values: { title: string; weight: TaskWeight; durationHours: number }) => void;
-  onEditTask: (taskId: string, values: { title: string; weight: TaskWeight; durationHours: number }) => void;
+  onAddTask: (values: { title: string; description: string; weight: TaskWeight; durationHours: number }) => void;
+  onEditTask: (
+    taskId: string,
+    values: { title: string; description: string; weight: TaskWeight; durationHours: number },
+  ) => void;
   onCompleteTask: (taskId: string) => void;
   onDeleteTask: (taskId: string) => void;
 };
