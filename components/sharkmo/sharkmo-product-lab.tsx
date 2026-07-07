@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Package, X } from "lucide-react";
 import { SharkmoBadge, SharkmoButton, SharkmoField, SharkmoPanel, sharkmoInputClass } from "@/components/sharkmo/sharkmo-ui";
 import type { ProductItem, ProductStatus, TechPackStatus } from "@/lib/sharkmo/types";
 
 type SharkmoProductLabProps = {
   products: ProductItem[];
+  selectedProductId?: string | null;
   onUpdateProduct: (product: ProductItem) => void;
   onUpdateStatus: (productId: string, status: ProductStatus) => void;
   onUpdateTechPack: (productId: string, status: TechPackStatus, fileUrl?: string) => void;
@@ -15,8 +16,30 @@ type SharkmoProductLabProps = {
 const productStatuses: ProductStatus[] = ["Idea", "Concept", "Design", "Mockup", "Tech pack in corso", "Tech pack completato", "Campione richiesto", "Campione ricevuto", "Revisione", "Pronto produzione", "Archiviato"];
 const techPackStatuses: TechPackStatus[] = ["Mancante", "In corso", "Allegato", "Completato", "Da revisionare"];
 
-export function SharkmoProductLab({ products, onUpdateProduct, onUpdateStatus, onUpdateTechPack }: SharkmoProductLabProps) {
+export function SharkmoProductLab({ products, selectedProductId, onUpdateProduct, onUpdateStatus, onUpdateTechPack }: SharkmoProductLabProps) {
   const [selectedProduct, setSelectedProduct] = useState<ProductItem | null>(null);
+
+  useEffect(() => {
+    if (!selectedProductId) {
+      return;
+    }
+
+    const product = products.find((item) => item.id === selectedProductId);
+    if (product) {
+      setSelectedProduct(product);
+    }
+  }, [products, selectedProductId]);
+
+  useEffect(() => {
+    if (!selectedProduct) {
+      return;
+    }
+
+    const updatedProduct = products.find((item) => item.id === selectedProduct.id);
+    if (updatedProduct) {
+      setSelectedProduct(updatedProduct);
+    }
+  }, [products, selectedProduct]);
 
   return (
     <div className="space-y-5">
@@ -33,9 +56,17 @@ export function SharkmoProductLab({ products, onUpdateProduct, onUpdateStatus, o
             onClick={() => setSelectedProduct(product)}
             className="overflow-hidden rounded-3xl border border-white/10 bg-[#19121b] text-left shadow-soft transition hover:border-[#d29f22]/45"
           >
-            <div className="flex aspect-[4/3] items-center justify-center bg-[radial-gradient(circle_at_30%_20%,rgba(210,159,34,0.25),transparent_35%),linear-gradient(135deg,#5d0018,#252628)]">
-              <Package className="text-[#d29f22]" size={42} />
-            </div>
+            {product.previewImageUrl ? (
+              <div
+                aria-label={product.name}
+                className="aspect-[4/3] w-full bg-cover bg-center"
+                style={{ backgroundImage: `url(${product.previewImageUrl})` }}
+              />
+            ) : (
+              <div className="flex aspect-[4/3] items-center justify-center bg-[radial-gradient(circle_at_30%_20%,rgba(210,159,34,0.25),transparent_35%),linear-gradient(135deg,#5d0018,#252628)]">
+                <Package className="text-[#d29f22]" size={42} />
+              </div>
+            )}
             <div className="p-5">
               <div className="flex flex-wrap gap-2">
                 <SharkmoBadge>{product.category}</SharkmoBadge>
@@ -62,7 +93,11 @@ export function SharkmoProductLab({ products, onUpdateProduct, onUpdateStatus, o
           }}
           onUpdateStatus={(status) => {
             onUpdateStatus(selectedProduct.id, status);
-            setSelectedProduct({ ...selectedProduct, status });
+            setSelectedProduct({
+              ...selectedProduct,
+              status,
+              techPackStatus: status === "Tech pack completato" ? "Completato" : selectedProduct.techPackStatus,
+            });
           }}
           onUpdateTechPack={(status, fileUrl) => {
             onUpdateTechPack(selectedProduct.id, status, fileUrl);
@@ -89,6 +124,32 @@ function ProductModal({
 }) {
   const [draft, setDraft] = useState(product);
 
+  useEffect(() => {
+    setDraft(product);
+  }, [product]);
+
+  function handleStatusChange(status: ProductStatus) {
+    const nextDraft = {
+      ...draft,
+      status,
+      techPackStatus: status === "Tech pack completato" ? "Completato" as const : draft.techPackStatus,
+    };
+
+    setDraft(nextDraft);
+    onUpdateStatus(status);
+  }
+
+  function handleTechPackChange(status: TechPackStatus, fileUrl?: string) {
+    const nextDraft = {
+      ...draft,
+      techPackStatus: status,
+      techPackFileUrl: fileUrl ?? draft.techPackFileUrl,
+    };
+
+    setDraft(nextDraft);
+    onUpdateTechPack(status, fileUrl);
+  }
+
   return (
     <div className="fixed inset-0 z-[9999] bg-black/75 backdrop-blur-md">
       <div className="flex min-h-dvh items-end justify-center p-4 sm:items-center">
@@ -110,7 +171,7 @@ function ProductModal({
                 <div className="grid gap-4">
                   <SharkmoField label="Nome"><input value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} className={sharkmoInputClass} /></SharkmoField>
                   <SharkmoField label="Stato">
-                    <select value={draft.status} onChange={(e) => onUpdateStatus(e.target.value as ProductStatus)} className={sharkmoInputClass}>
+                    <select value={draft.status} onChange={(e) => handleStatusChange(e.target.value as ProductStatus)} className={sharkmoInputClass}>
                       {productStatuses.map((status) => <option key={status}>{status}</option>)}
                     </select>
                   </SharkmoField>
@@ -135,7 +196,7 @@ function ProductModal({
                 <h3 className="mb-4 text-lg font-semibold text-zinc-50">Tech Pack</h3>
                 <div className="grid gap-4">
                   <SharkmoField label="Status tech pack">
-                    <select value={draft.techPackStatus} onChange={(e) => onUpdateTechPack(e.target.value as TechPackStatus)} className={sharkmoInputClass}>
+                    <select value={draft.techPackStatus} onChange={(e) => handleTechPackChange(e.target.value as TechPackStatus)} className={sharkmoInputClass}>
                       {techPackStatuses.map((status) => <option key={status}>{status}</option>)}
                     </select>
                   </SharkmoField>
@@ -143,7 +204,7 @@ function ProductModal({
                     <input
                       placeholder="tech-pack-jeans-v1.pdf"
                       defaultValue={draft.techPackFileUrl}
-                      onBlur={(e) => e.target.value ? onUpdateTechPack("Allegato", e.target.value) : undefined}
+                      onBlur={(e) => e.target.value ? handleTechPackChange("Allegato", e.target.value) : undefined}
                       className={sharkmoInputClass}
                     />
                   </SharkmoField>

@@ -8,7 +8,7 @@ import type { ContentItem, PhilosophyConcept, ProductItem, SharkmoState } from "
 
 type SharkmoHomeProps = {
   state: SharkmoState;
-  onOpenArea: (area: string) => void;
+  onOpenPriority: (area: string, entityId: string) => void;
 };
 
 function daysSince(value: string) {
@@ -43,7 +43,7 @@ function getBlockedItems(contents: ContentItem[], products: ProductItem[], conce
   return blocked.slice(0, 5);
 }
 
-export function SharkmoHome({ state, onOpenArea }: SharkmoHomeProps) {
+export function SharkmoHome({ state, onOpenPriority }: SharkmoHomeProps) {
   const priorities = generateSharkmoDailyPriorities({
     contents: state.contents,
     products: state.products,
@@ -87,7 +87,7 @@ export function SharkmoHome({ state, onOpenArea }: SharkmoHomeProps) {
                 <p className="mt-2 text-sm leading-6 text-zinc-400">{priority.reason}</p>
                 <div className="mt-4 flex items-center justify-between gap-3">
                   <span className="text-xs text-zinc-500">Elemento: {priority.entityType}</span>
-                  <SharkmoButton variant="ghost" onClick={() => onOpenArea(priority.area)}>
+                  <SharkmoButton variant="ghost" onClick={() => onOpenPriority(priority.area, priority.entityId)}>
                     {priority.suggestedAction}
                   </SharkmoButton>
                 </div>
@@ -157,7 +157,7 @@ export function SharkmoHome({ state, onOpenArea }: SharkmoHomeProps) {
           </div>
           <button
             type="button"
-            onClick={() => onOpenArea("Content Studio")}
+            onClick={() => onOpenPriority("Content Studio", "")}
             className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[#d29f22]"
           >
             Vai alla pipeline <ArrowUpRight size={16} />

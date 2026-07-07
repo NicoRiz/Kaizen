@@ -6,6 +6,7 @@ import type { ContentItem, ContentStatus } from "@/lib/sharkmo/types";
 
 type SharkmoContentStudioProps = {
   contents: ContentItem[];
+  selectedEntityId?: string | null;
   onAdvanceContent: (contentId: string) => void;
   onUpdateStatus: (contentId: string, status: ContentStatus) => void;
   onSchedule: (contentId: string, publishDate: string, platform: string) => void;
@@ -15,6 +16,7 @@ const pipelineStatuses: ContentStatus[] = ["Da registrare", "Registrato", "Da ed
 
 export function SharkmoContentStudio({
   contents,
+  selectedEntityId,
   onAdvanceContent,
   onUpdateStatus,
   onSchedule,
@@ -41,7 +43,7 @@ export function SharkmoContentStudio({
           </div>
           <div className="grid gap-3">
             {ideas.length > 0 ? ideas.map((item) => (
-              <ContentCard key={item.id} item={item} onAdvanceContent={onAdvanceContent} onUpdateStatus={onUpdateStatus} />
+              <ContentCard key={item.id} item={item} selected={selectedEntityId === item.id} onAdvanceContent={onAdvanceContent} onUpdateStatus={onUpdateStatus} />
             )) : <Empty text="Nessuna idea pura: lavora sugli script e sulla pipeline." />}
           </div>
         </SharkmoPanel>
@@ -53,7 +55,7 @@ export function SharkmoContentStudio({
           </div>
           <div className="grid gap-3">
             {scripts.length > 0 ? scripts.map((item) => (
-              <ContentCard key={item.id} item={item} onAdvanceContent={onAdvanceContent} onUpdateStatus={onUpdateStatus} />
+              <ContentCard key={item.id} item={item} selected={selectedEntityId === item.id} onAdvanceContent={onAdvanceContent} onUpdateStatus={onUpdateStatus} />
             )) : <Empty text="Nessuno script aperto." />}
           </div>
         </SharkmoPanel>
@@ -70,7 +72,7 @@ export function SharkmoContentStudio({
               <h3 className="mb-3 text-sm font-semibold text-zinc-200">{status}</h3>
               <div className="grid gap-3">
                 {contents.filter((item) => item.status === status).map((item) => (
-                  <article key={item.id} className="rounded-xl border border-white/10 bg-[#252628] p-3">
+                  <article key={item.id} className={`rounded-xl border bg-[#252628] p-3 ${selectedEntityId === item.id ? "border-[#d29f22]/70" : "border-white/10"}`}>
                     <p className="text-sm font-medium text-zinc-50">{item.title}</p>
                     <p className="mt-1 text-xs text-zinc-500">{item.pillar}</p>
                     <div className="mt-3 flex flex-wrap gap-2">
@@ -104,15 +106,17 @@ export function SharkmoContentStudio({
 
 function ContentCard({
   item,
+  selected,
   onAdvanceContent,
   onUpdateStatus,
 }: {
   item: ContentItem;
+  selected?: boolean;
   onAdvanceContent: (contentId: string) => void;
   onUpdateStatus: (contentId: string, status: ContentStatus) => void;
 }) {
   return (
-    <article className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+    <article className={`rounded-2xl border bg-white/[0.03] p-4 ${selected ? "border-[#d29f22]/70" : "border-white/10"}`}>
       <div className="flex flex-wrap gap-2">
         <SharkmoBadge>{item.category}</SharkmoBadge>
         <SharkmoBadge tone="dark">{item.status}</SharkmoBadge>

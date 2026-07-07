@@ -7,10 +7,18 @@ import type { ContentItem, PerformanceEntry } from "@/lib/sharkmo/types";
 type SharkmoPerformanceProps = {
   contents: ContentItem[];
   performances: PerformanceEntry[];
+  selectedEntityId?: string | null;
   onUpdatePerformance: (entry: PerformanceEntry) => void;
+  onCreatePerformance: (contentId: string) => void;
 };
 
-export function SharkmoPerformance({ contents, performances, onUpdatePerformance }: SharkmoPerformanceProps) {
+export function SharkmoPerformance({
+  contents,
+  performances,
+  selectedEntityId,
+  onUpdatePerformance,
+  onCreatePerformance,
+}: SharkmoPerformanceProps) {
   const publishedContents = contents.filter((content) => content.status === "Pubblicato" || content.status === "Performance");
 
   return (
@@ -24,7 +32,13 @@ export function SharkmoPerformance({ contents, performances, onUpdatePerformance
         {performances.map((entry) => {
           const content = contents.find((item) => item.id === entry.contentItemId);
           return (
-            <PerformanceCard key={entry.id} entry={entry} content={content} onUpdatePerformance={onUpdatePerformance} />
+            <PerformanceCard
+              key={entry.id}
+              entry={entry}
+              content={content}
+              selected={selectedEntityId === entry.id || selectedEntityId === entry.contentItemId}
+              onUpdatePerformance={onUpdatePerformance}
+            />
           );
         })}
       </div>
@@ -40,7 +54,12 @@ export function SharkmoPerformance({ contents, performances, onUpdatePerformance
                   <p className="font-medium text-zinc-50">{content.title}</p>
                   <p className="mt-1 text-sm text-zinc-400">{content.platform}</p>
                 </div>
-                <SharkmoBadge tone={hasPerformance ? "gold" : "red"}>{hasPerformance ? "Performance collegata" : "Da aggiornare"}</SharkmoBadge>
+                <div className="flex flex-wrap items-center gap-2">
+                  <SharkmoBadge tone={hasPerformance ? "gold" : "red"}>{hasPerformance ? "Performance collegata" : "Da aggiornare"}</SharkmoBadge>
+                  {!hasPerformance ? (
+                    <SharkmoButton onClick={() => onCreatePerformance(content.id)}>Crea/Aggiorna Performance</SharkmoButton>
+                  ) : null}
+                </div>
               </div>
             );
           })}
@@ -53,14 +72,16 @@ export function SharkmoPerformance({ contents, performances, onUpdatePerformance
 function PerformanceCard({
   entry,
   content,
+  selected,
   onUpdatePerformance,
 }: {
   entry: PerformanceEntry;
   content?: ContentItem;
+  selected?: boolean;
   onUpdatePerformance: (entry: PerformanceEntry) => void;
 }) {
   return (
-    <SharkmoPanel>
+    <SharkmoPanel className={selected ? "border-[#d29f22]/60" : undefined}>
       <div className="mb-4 flex items-start gap-3">
         <TrendingUp className="mt-1 text-[#d29f22]" size={20} />
         <div>

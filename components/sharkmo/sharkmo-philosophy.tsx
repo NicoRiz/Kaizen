@@ -6,6 +6,7 @@ import type { PhilosophyConcept } from "@/lib/sharkmo/types";
 
 type SharkmoPhilosophyProps = {
   concepts: PhilosophyConcept[];
+  selectedEntityId?: string | null;
   onTransformToScript: (conceptId: string) => void;
 };
 
@@ -18,7 +19,7 @@ const pillarDescriptions = {
   "Costruzione del brand": "Processo, prototipi, tech pack, nascita del brand.",
 };
 
-export function SharkmoPhilosophy({ concepts, onTransformToScript }: SharkmoPhilosophyProps) {
+export function SharkmoPhilosophy({ concepts, selectedEntityId, onTransformToScript }: SharkmoPhilosophyProps) {
   return (
     <div className="space-y-5">
       <SharkmoPanel>
@@ -40,7 +41,7 @@ export function SharkmoPhilosophy({ concepts, onTransformToScript }: SharkmoPhil
 
       <div className="grid gap-4 xl:grid-cols-2">
         {concepts.map((concept) => (
-          <SharkmoPanel key={concept.id}>
+          <SharkmoPanel key={concept.id} className={selectedEntityId === concept.id ? "border-[#d29f22]/60" : undefined}>
             <div className="mb-3 flex flex-wrap gap-2">
               <SharkmoBadge>{concept.pillar}</SharkmoBadge>
               <SharkmoBadge tone="dark">{concept.status}</SharkmoBadge>

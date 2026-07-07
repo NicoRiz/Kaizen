@@ -59,6 +59,27 @@ function isProductAdvance(fromStatus: ProductStatus, toStatus: ProductStatus) {
   return productFlow.indexOf(toStatus) > productFlow.indexOf(fromStatus);
 }
 
+function createEmptyPerformance(content: ContentItem, now: string): PerformanceEntry {
+  return {
+    id: createId("performance"),
+    contentItemId: content.id,
+    platform: content.platform,
+    publishedAt: content.publishDate ?? now,
+    views: 0,
+    likes: 0,
+    comments: 0,
+    shares: 0,
+    saves: 0,
+    followersGained: 0,
+    notes: "",
+    whatWorked: "",
+    whatToImprove: "",
+    finalJudgement: "",
+    createdAt: now,
+    updatedAt: now,
+  };
+}
+
 export function useSharkmoStore() {
   const [state, setState] = useState<SharkmoState>(sharkmoInitialState);
   const [ready, setReady] = useState(false);
@@ -94,26 +115,18 @@ export function useSharkmoStore() {
       });
 
       let performances = current.performances;
+      const events = [event];
       if (toStatus === "Performance" && !performances.some((entry) => entry.contentItemId === contentId)) {
-        const performance: PerformanceEntry = {
-          id: createId("performance"),
-          contentItemId: contentId,
-          platform: content.platform,
-          publishedAt: content.publishDate ?? now,
-          views: 0,
-          likes: 0,
-          comments: 0,
-          shares: 0,
-          saves: 0,
-          followersGained: 0,
-          notes: "",
-          whatWorked: "",
-          whatToImprove: "",
-          finalJudgement: "",
-          createdAt: now,
-          updatedAt: now,
-        };
+        const performance = createEmptyPerformance(content, now);
         performances = [performance, ...performances];
+        events.push(createSharkmoEvent({
+          type: "PERFORMANCE_CREATED",
+          area: "Performance",
+          entityType: "performance",
+          entityId: performance.id,
+          title: `${content.title}: scheda performance creata`,
+          description: "Creata scheda performance collegata al contenuto.",
+        }));
       }
 
       return {
@@ -130,7 +143,58 @@ export function useSharkmoStore() {
             : item
         )),
         performances,
-        events: [event, ...current.events],
+        events: [...events, ...current.events],
+      };
+    });
+  }, []);
+
+  const createPerformanceForContent = useCallback((contentId: string) => {
+    const now = new Date().toISOString();
+
+    setState((current) => {
+      const content = current.contents.find((item) => item.id === contentId);
+      if (!content) return current;
+
+      const existing = current.performances.find((entry) => entry.contentItemId === contentId);
+      const nextStatus = content.status === "Performance" ? content.status : "Performance";
+      const events = [];
+      let performances = current.performances;
+
+      if (content.status !== "Performance") {
+        events.push(createSharkmoEvent({
+          type: "CONTENT_TO_PERFORMANCE",
+          area: "Performance",
+          entityType: "content",
+          entityId: contentId,
+          title: `${content.title}: spostato in Performance`,
+          description: `Cambio stato contenuto da ${content.status} a Performance.`,
+          fromStatus: content.status,
+          toStatus: "Performance",
+        }));
+      }
+
+      if (!existing) {
+        const performance = createEmptyPerformance(content, now);
+        performances = [performance, ...performances];
+        events.push(createSharkmoEvent({
+          type: "PERFORMANCE_CREATED",
+          area: "Performance",
+          entityType: "performance",
+          entityId: performance.id,
+          title: `${content.title}: scheda performance creata`,
+          description: "Creata scheda performance collegata al contenuto.",
+        }));
+      }
+
+      return {
+        ...current,
+        contents: current.contents.map((item) => (
+          item.id === contentId
+            ? { ...item, status: nextStatus, updatedAt: now, lastStatusChangeAt: content.status === nextStatus ? item.lastStatusChangeAt : now }
+            : item
+        )),
+        performances,
+        events: [...events, ...current.events],
       };
     });
   }, []);
@@ -362,5 +426,6 @@ export function useSharkmoStore() {
     updateTechPackStatus,
     transformConceptToScript,
     updatePerformance,
+    createPerformanceForContent,
   };
 }

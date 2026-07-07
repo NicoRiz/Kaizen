@@ -21,7 +21,13 @@ const tabs: Array<{ label: SharkmoTab; icon: React.ElementType }> = [
 
 export function SharkmoDashboard() {
   const [activeTab, setActiveTab] = useState<SharkmoTab>("SM Home");
+  const [selectedEntityId, setSelectedEntityId] = useState<string | null>(null);
   const store = useSharkmoStore();
+
+  function openFromPriority(area: string, entityId: string) {
+    setSelectedEntityId(entityId || null);
+    setActiveTab(areaToTab(area));
+  }
 
   return (
     <div className="min-h-[calc(100vh-4rem)] rounded-[2rem] border border-[#d29f22]/10 bg-[#0f0b12] p-3 text-zinc-50 shadow-soft sm:p-5">
@@ -33,7 +39,10 @@ export function SharkmoDashboard() {
             <button
               key={tab.label}
               type="button"
-              onClick={() => setActiveTab(tab.label)}
+              onClick={() => {
+                setSelectedEntityId(null);
+                setActiveTab(tab.label);
+              }}
               className={`flex shrink-0 items-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold transition ${
                 active ? "bg-[#d29f22] text-[#19121b]" : "text-zinc-400 hover:bg-white/5 hover:text-zinc-100"
               }`}
@@ -51,10 +60,11 @@ export function SharkmoDashboard() {
         </div>
       ) : (
         <>
-          {activeTab === "SM Home" ? <SharkmoHome state={store.state} onOpenArea={(area) => setActiveTab(areaToTab(area))} /> : null}
+          {activeTab === "SM Home" ? <SharkmoHome state={store.state} onOpenPriority={openFromPriority} /> : null}
           {activeTab === "Content Studio" ? (
             <SharkmoContentStudio
               contents={store.activeContents}
+              selectedEntityId={selectedEntityId}
               onAdvanceContent={store.advanceContent}
               onUpdateStatus={store.updateContentStatus}
               onSchedule={store.scheduleContent}
@@ -63,19 +73,26 @@ export function SharkmoDashboard() {
           {activeTab === "Product Lab" ? (
             <SharkmoProductLab
               products={store.activeProducts}
+              selectedProductId={selectedEntityId}
               onUpdateProduct={store.updateProduct}
               onUpdateStatus={store.updateProductStatus}
               onUpdateTechPack={store.updateTechPackStatus}
             />
           ) : null}
           {activeTab === "Filosofia" ? (
-            <SharkmoPhilosophy concepts={store.activeConcepts} onTransformToScript={store.transformConceptToScript} />
+            <SharkmoPhilosophy
+              concepts={store.activeConcepts}
+              selectedEntityId={selectedEntityId}
+              onTransformToScript={store.transformConceptToScript}
+            />
           ) : null}
           {activeTab === "Performance" ? (
             <SharkmoPerformance
               contents={store.state.contents}
               performances={store.state.performances}
+              selectedEntityId={selectedEntityId}
               onUpdatePerformance={store.updatePerformance}
+              onCreatePerformance={store.createPerformanceForContent}
             />
           ) : null}
         </>
