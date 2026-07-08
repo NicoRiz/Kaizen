@@ -20,13 +20,14 @@ export const sharkmoMetrics: MetricDefinition[] = [
   { key: "published", label: "Contenuti pubblicati", eventTypes: ["CONTENT_PUBLISHED"] },
   { key: "recorded", label: "Contenuti registrati", eventTypes: ["CONTENT_RECORDED"] },
   { key: "edited", label: "Contenuti editati", eventTypes: ["CONTENT_EDITED"] },
-  { key: "ideas", label: "Idee trasformate in contenuti/script", eventTypes: ["IDEA_TRANSFORMED", "PHILOSOPHY_TRANSFORMED"] },
-  { key: "advanced", label: "Capi avanzati", eventTypes: ["PRODUCT_ADVANCED"] },
+  { key: "ideas", label: "Idee create o trasformate", eventTypes: ["CONTENT_CREATED", "IDEA_TRANSFORMED", "PHILOSOPHY_TRANSFORMED"] },
+  { key: "advanced", label: "Capi creati o avanzati", eventTypes: ["PRODUCT_CREATED", "PRODUCT_ADVANCED"] },
   { key: "techpacks", label: "Tech pack completati", eventTypes: ["TECH_PACK_COMPLETED"] },
   { key: "to-performance", label: "Contenuti spostati in performance", eventTypes: ["CONTENT_TO_PERFORMANCE", "PERFORMANCE_CREATED"] },
-  { key: "performance", label: "Performance aggiornate", eventTypes: ["PERFORMANCE_UPDATED"] },
-  { key: "products", label: "Prodotti modificati", eventTypes: ["PRODUCT_UPDATED"] },
-  { key: "concepts", label: "Concetti trasformati", eventTypes: ["PHILOSOPHY_TRANSFORMED"] },
+  { key: "performance", label: "Performance aggiornate", eventTypes: ["PERFORMANCE_CREATED", "PERFORMANCE_UPDATED", "PERFORMANCE_DELETED"] },
+  { key: "products", label: "Prodotti modificati", eventTypes: ["PRODUCT_UPDATED", "PRODUCT_DELETED"] },
+  { key: "concepts", label: "Concetti creati o trasformati", eventTypes: ["PHILOSOPHY_CREATED", "PHILOSOPHY_TRANSFORMED", "PHILOSOPHY_DELETED"] },
+  { key: "priorities", label: "Priorita completate", eventTypes: ["PRIORITY_COMPLETED"] },
 ];
 
 export function createSharkmoEvent(input: {

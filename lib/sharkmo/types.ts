@@ -60,24 +60,33 @@ export type PhilosophyStatus =
   | "Salvato"
   | "Da sviluppare"
   | "Pronto per script"
+  | "Trasformato in idea"
   | "Trasformato in script"
   | "Trasformato in prodotto"
   | "Archiviato";
 
 export type SharkmoEventType =
+  | "CONTENT_CREATED"
+  | "CONTENT_DELETED"
   | "CONTENT_STATUS_CHANGED"
   | "CONTENT_RECORDED"
   | "CONTENT_EDITED"
   | "CONTENT_PUBLISHED"
   | "CONTENT_TO_PERFORMANCE"
   | "IDEA_TRANSFORMED"
+  | "PRODUCT_CREATED"
+  | "PRODUCT_DELETED"
   | "PRODUCT_STATUS_CHANGED"
   | "PRODUCT_ADVANCED"
   | "PRODUCT_UPDATED"
   | "TECH_PACK_COMPLETED"
   | "PERFORMANCE_CREATED"
   | "PERFORMANCE_UPDATED"
+  | "PERFORMANCE_DELETED"
+  | "PHILOSOPHY_CREATED"
+  | "PHILOSOPHY_DELETED"
   | "PHILOSOPHY_TRANSFORMED"
+  | "PRIORITY_COMPLETED"
   | "FILE_UPLOADED";
 
 export type EntityType = "content" | "product" | "philosophy" | "performance";
@@ -146,6 +155,7 @@ export type PhilosophyConcept = {
   status: PhilosophyStatus;
   createdAt: string;
   updatedAt: string;
+  notes?: string;
   transformedIntoContentId?: string;
   transformedIntoProductId?: string;
 };
@@ -193,6 +203,9 @@ export type SharkmoPriority = {
   entityId: string;
   suggestedAction: string;
   score: number;
+  completed: boolean;
+  createdForDate: string;
+  completedAt?: string;
 };
 
 export type SharkmoState = {
@@ -201,4 +214,5 @@ export type SharkmoState = {
   concepts: PhilosophyConcept[];
   performances: PerformanceEntry[];
   events: SharkmoEvent[];
+  dailyPriorities: SharkmoPriority[];
 };

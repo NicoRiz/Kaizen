@@ -25,6 +25,7 @@ export function generateSharkmoDailyPriorities(input: {
   now?: Date;
 }) {
   const now = input.now ?? new Date();
+  const createdForDate = now.toISOString().slice(0, 10);
   const candidates: SharkmoPriority[] = [];
 
   input.contents.forEach((content) => {
@@ -40,7 +41,9 @@ export function generateSharkmoDailyPriorities(input: {
         entityType: "content",
         entityId: content.id,
         suggestedAction: "Programma contenuto",
-        score: 86 + neglected + Math.min(stuckDays, 10),
+        score: Math.min(86 + neglected + Math.min(stuckDays, 10), 100),
+        completed: false,
+        createdForDate,
       });
     }
 
@@ -53,7 +56,9 @@ export function generateSharkmoDailyPriorities(input: {
         entityType: "content",
         entityId: content.id,
         suggestedAction: "Segna pubblicato",
-        score: 94 + neglected,
+        score: Math.min(94 + neglected, 100),
+        completed: false,
+        createdForDate,
       });
     }
 
@@ -66,7 +71,9 @@ export function generateSharkmoDailyPriorities(input: {
         entityType: "content",
         entityId: content.id,
         suggestedAction: "Crea performance",
-        score: 90 + getNeglectedBoost("Performance", input.events, now),
+        score: Math.min(90 + getNeglectedBoost("Performance", input.events, now), 100),
+        completed: false,
+        createdForDate,
       });
     }
 
@@ -79,7 +86,9 @@ export function generateSharkmoDailyPriorities(input: {
         entityType: "content",
         entityId: content.id,
         suggestedAction: "Avanza stato",
-        score: 72 + neglected + Math.min(stuckDays, 12),
+        score: Math.min(72 + neglected + Math.min(stuckDays, 12), 100),
+        completed: false,
+        createdForDate,
       });
     }
   });
@@ -97,7 +106,9 @@ export function generateSharkmoDailyPriorities(input: {
         entityType: "product",
         entityId: product.id,
         suggestedAction: "Completa tech pack",
-        score: 88 + neglected + Math.min(stuckDays, 12),
+        score: Math.min(88 + neglected + Math.min(stuckDays, 12), 100),
+        completed: false,
+        createdForDate,
       });
     } else if (product.status === "Mockup") {
       candidates.push({
@@ -108,7 +119,9 @@ export function generateSharkmoDailyPriorities(input: {
         entityType: "product",
         entityId: product.id,
         suggestedAction: "Apri prodotto",
-        score: 72 + neglected,
+        score: Math.min(72 + neglected, 100),
+        completed: false,
+        createdForDate,
       });
     }
   });
@@ -125,7 +138,9 @@ export function generateSharkmoDailyPriorities(input: {
         entityType: "philosophy",
         entityId: concept.id,
         suggestedAction: "Trasforma in script",
-        score: 80 + neglected,
+        score: Math.min(80 + neglected, 100),
+        completed: false,
+        createdForDate,
       });
     }
   });

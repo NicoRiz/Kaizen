@@ -8,6 +8,7 @@ import { SharkmoPerformance } from "@/components/sharkmo/sharkmo-performance";
 import { SharkmoPhilosophy } from "@/components/sharkmo/sharkmo-philosophy";
 import { SharkmoProductLab } from "@/components/sharkmo/sharkmo-product-lab";
 import { useSharkmoStore } from "@/lib/sharkmo/use-sharkmo-store";
+import type { EntityType } from "@/lib/sharkmo/types";
 
 type SharkmoTab = "SM Home" | "Content Studio" | "Product Lab" | "Filosofia" | "Performance";
 
@@ -27,6 +28,16 @@ export function SharkmoDashboard() {
   function openFromPriority(area: string, entityId: string) {
     setSelectedEntityId(entityId || null);
     setActiveTab(areaToTab(area));
+  }
+
+  function advanceBlocked(entityType: EntityType, entityId: string) {
+    if (entityType === "content") {
+      store.advanceContent(entityId);
+      return;
+    }
+    if (entityType === "product") {
+      store.advanceProduct(entityId);
+    }
   }
 
   return (
@@ -60,21 +71,36 @@ export function SharkmoDashboard() {
         </div>
       ) : (
         <>
-          {activeTab === "SM Home" ? <SharkmoHome state={store.state} onOpenPriority={openFromPriority} /> : null}
+          {activeTab === "SM Home" ? (
+            <SharkmoHome
+              state={store.state}
+              onOpenPriority={openFromPriority}
+              onCompletePriority={store.completeDailyPriority}
+              onAdvanceBlocked={advanceBlocked}
+            />
+          ) : null}
           {activeTab === "Content Studio" ? (
             <SharkmoContentStudio
               contents={store.activeContents}
               selectedEntityId={selectedEntityId}
+              onCreateContent={store.createContent}
+              onUpdateContent={store.updateContent}
+              onDeleteContent={store.deleteContent}
+              onArchiveContent={store.archiveContent}
               onAdvanceContent={store.advanceContent}
               onUpdateStatus={store.updateContentStatus}
               onSchedule={store.scheduleContent}
+              onUnschedule={store.unscheduleContent}
             />
           ) : null}
           {activeTab === "Product Lab" ? (
             <SharkmoProductLab
               products={store.activeProducts}
               selectedProductId={selectedEntityId}
+              onCreateProduct={store.createProduct}
               onUpdateProduct={store.updateProduct}
+              onDeleteProduct={store.deleteProduct}
+              onArchiveProduct={store.archiveProduct}
               onUpdateStatus={store.updateProductStatus}
               onUpdateTechPack={store.updateTechPackStatus}
             />
@@ -82,8 +108,15 @@ export function SharkmoDashboard() {
           {activeTab === "Filosofia" ? (
             <SharkmoPhilosophy
               concepts={store.activeConcepts}
+              products={store.activeProducts}
               selectedEntityId={selectedEntityId}
+              onCreateConcept={store.createConcept}
+              onUpdateConcept={store.updateConcept}
+              onDeleteConcept={store.deleteConcept}
+              onArchiveConcept={store.archiveConcept}
+              onTransformToIdea={store.transformConceptToIdea}
               onTransformToScript={store.transformConceptToScript}
+              onLinkToProduct={store.linkConceptToProduct}
             />
           ) : null}
           {activeTab === "Performance" ? (
@@ -92,6 +125,7 @@ export function SharkmoDashboard() {
               performances={store.state.performances}
               selectedEntityId={selectedEntityId}
               onUpdatePerformance={store.updatePerformance}
+              onDeletePerformance={store.deletePerformance}
               onCreatePerformance={store.createPerformanceForContent}
             />
           ) : null}

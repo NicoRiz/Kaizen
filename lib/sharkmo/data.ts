@@ -178,6 +178,7 @@ export const sharkmoInitialState: SharkmoState = {
       updatedAt: daysAgo(8),
     },
   ],
+  dailyPriorities: [],
   events: [
     {
       id: "event-content-edited",
